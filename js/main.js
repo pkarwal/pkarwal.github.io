@@ -14,21 +14,26 @@
   // Mobile nav toggle
   var toggle = document.getElementById('nav-toggle');
   var mobileMenu = document.getElementById('nav-mobile-menu');
+
   if (toggle && mobileMenu) {
     toggle.addEventListener('click', function () {
       var isOpen = mobileMenu.classList.toggle('open');
       toggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+      toggle.setAttribute('aria-label', isOpen ? 'Close menu' : 'Open menu');
     });
+
     mobileMenu.querySelectorAll('a').forEach(function (link) {
       link.addEventListener('click', function () {
         mobileMenu.classList.remove('open');
         toggle.setAttribute('aria-expanded', 'false');
+        toggle.setAttribute('aria-label', 'Open menu');
       });
     });
   }
 
-  // Scroll reveal — content is visible by default ;
+  // Scroll reveal
   var revealEls = document.querySelectorAll('.reveal');
+
   if (revealEls.length && !reduceMotion && 'IntersectionObserver' in window) {
     document.documentElement.classList.add('js-ready');
 
@@ -41,17 +46,27 @@
       });
     }, { threshold: 0, rootMargin: '0px 0px -10% 0px' });
 
-    revealEls.forEach(function (el) { revealObserver.observe(el); });
+    revealEls.forEach(function (el) {
+      revealObserver.observe(el);
+    });
 
-    // Safety net: force-reveal anything the observer hasn't caught within 2s
-    // (covers any edge case where a section never registers as intersecting).
+    // Safety net so content is never permanently hidden.
     window.setTimeout(function () {
-      revealEls.forEach(function (el) { el.classList.add('in-view'); });
+      revealEls.forEach(function (el) {
+        el.classList.add('in-view');
+      });
     }, 2000);
   }
 
+  // Count-up numbers
   var numberEls = document.querySelectorAll('.number-value');
-  if (numberEls.length && !reduceMotion && window.requestAnimationFrame && document.visibilityState === 'visible') {
+
+  if (
+    numberEls.length &&
+    !reduceMotion &&
+    window.requestAnimationFrame &&
+    document.visibilityState === 'visible'
+  ) {
     var animateCount = function (el) {
       var target = parseFloat(el.getAttribute('data-count-to'));
       var prefix = el.getAttribute('data-prefix') || '';
@@ -72,20 +87,28 @@
       function onVisChange() {
         if (document.visibilityState !== 'visible') finish();
       }
+
       document.addEventListener('visibilitychange', onVisChange);
 
       function step(timestamp) {
         if (done) return;
         if (!start) start = timestamp;
+
         var progress = Math.min((timestamp - start) / duration, 1);
         var current = target * progress;
-        el.textContent = prefix + (isDecimal ? current.toFixed(1) : Math.round(current)) + suffix;
+
+        el.textContent =
+          prefix +
+          (isDecimal ? current.toFixed(1) : Math.round(current)) +
+          suffix;
+
         if (progress < 1) {
           window.requestAnimationFrame(step);
         } else {
           finish();
         }
       }
+
       window.requestAnimationFrame(step);
     };
 
